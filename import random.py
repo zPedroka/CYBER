@@ -1,4 +1,6 @@
+import os
 import random
+import sys
 import threading
 import time
 
@@ -21,12 +23,19 @@ class Hacker(threading.Thread):
         self.cofre = cofre
 
     def run(self):
+        global tentar
         tentativa = 0
-        while not self.cofre.verificar_senha(tentativa):
-            tentativa += 1
-            print(f'{self.nome}: Tentativa {tentativa}')
-            time.sleep(0.1)
-        print(f'{self.nome}: Cofre aberto!')
+        while tentar:
+            if not self.cofre.verificar_senha(tentativa):
+                tentativa += 1
+                print(f'{self.nome}: Tentativa {tentativa}')
+                time.sleep(0.1)
+            else:
+                print(f'{self.nome}: Cofre aberto!')
+                self.cofre.aberto = True
+                tentar = False
+                break
+
 
 class Policia(threading.Thread):
     def __init__(self, cofre):
@@ -34,10 +43,13 @@ class Policia(threading.Thread):
         self.cofre = cofre
 
     def run(self):
+        global tentar
         time.sleep(10)
         if not self.cofre.aberto:
             print('A polícia pegou os hackers e eles estão presos!')
-
+            tentar = False
+            
+tentar = True
 cofre = Cofre()
 hacker1 = Hacker('Hacker 1', cofre)
 hacker2 = Hacker('Hacker 2', cofre)
